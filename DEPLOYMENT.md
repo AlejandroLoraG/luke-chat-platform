@@ -100,15 +100,26 @@ Access at `http://localhost:3000/chat`
 
 ## Deployment Architecture Options
 
-### Option 1: Separate Containers (Recommended)
+### Option 1: Dokploy with Traefik (Current Setup)
+```
+Internet → Traefik (Port 443/80) → Frontend Container (Port 3000)
+                                  → Backend Container (Port 8001)
+```
+
+**Domain:** `https://luqe.alelo-luqe.fun` (frontend)
+**Backend:** `https://chat.alelo-luqe.fun` (backend)
+
+Deploy backend and frontend as separate Dokploy applications. Traefik handles SSL and routing via domains.
+
+### Option 2: Separate Containers (Alternative)
 ```
 [Frontend Container] ←→ [Backend Container]
-     (Port 3000)           (Port 8001)
+     (Port 3001:3000)      (Port 8001)
 ```
 
 Deploy backend and frontend as separate Dokploy applications on the same VPS. Use Docker network or internal IP for communication.
 
-### Option 2: Docker Compose Stack
+### Option 3: Docker Compose Stack
 ```yaml
 # Full stack in one docker-compose.yml
 services:
@@ -127,7 +138,7 @@ services:
       - backend
 ```
 
-### Option 3: Reverse Proxy Setup
+### Option 4: Custom Reverse Proxy Setup
 ```
 Nginx/Traefik
      ├── /chat → Frontend (Port 3000)
