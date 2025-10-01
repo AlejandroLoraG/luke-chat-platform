@@ -152,17 +152,6 @@ export const mockConversations: Conversation[] = [
   }
 ];
 
-// Mock sample messages for new conversations
-export const sampleMessages: ChatMessage[] = [
-  {
-    id: 'sample-1',
-    content: 'Hello! I\'m your AI workflow assistant. I can help you create, modify, and manage business workflows. What would you like to work on today?',
-    role: 'assistant',
-    timestamp: new Date(),
-    status: 'sent'
-  }
-];
-
 // Workflow templates
 export const workflowTemplates = [
   {

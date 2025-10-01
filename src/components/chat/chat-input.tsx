@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Square, Zap, MessageSquare } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -11,7 +12,6 @@ interface ChatInputProps {
   isLoading?: boolean;
   isStreaming?: boolean;
   onStopStreaming?: () => void;
-  placeholder?: string;
   disabled?: boolean;
 }
 
@@ -21,9 +21,9 @@ export function ChatInput({
   isLoading = false,
   isStreaming = false,
   onStopStreaming,
-  placeholder = "Type your message...",
   disabled = false
 }: ChatInputProps) {
+  const t = useTranslation();
   const [message, setMessage] = useState('');
   const [useStreaming, setUseStreaming] = useState(true); // Default to streaming
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +79,7 @@ export function ChatInput({
               className="flex items-center gap-1.5"
             >
               <Zap className="w-3 h-3" />
-              <span className="text-xs">Streaming</span>
+              <span className="text-xs">{t.chatInput.modes.streaming}</span>
             </Button>
             <Button
               type="button"
@@ -90,13 +90,13 @@ export function ChatInput({
               className="flex items-center gap-1.5"
             >
               <MessageSquare className="w-3 h-3" />
-              <span className="text-xs">Standard</span>
+              <span className="text-xs">{t.chatInput.modes.standard}</span>
             </Button>
           </div>
 
           {/* Mode Description */}
           <div className="text-xs text-muted-foreground">
-            {useStreaming ? "Real-time AI responses" : "Complete responses"}
+            {useStreaming ? t.chatInput.modes.streamingDescription : t.chatInput.modes.standardDescription}
           </div>
         </div>
 
@@ -109,9 +109,9 @@ export function ChatInput({
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                isStreaming ? "AI is streaming..." :
-                isLoading ? "AI is responding..." :
-                placeholder
+                isStreaming ? t.chatInput.placeholderStreaming :
+                isLoading ? t.chatInput.placeholderLoading :
+                t.chatInput.placeholder
               }
               disabled={isLoading || disabled || isStreaming}
               className="pr-12"
@@ -135,7 +135,7 @@ export function ChatInput({
               className="px-4"
             >
               <Square className="w-4 h-4" />
-              <span className="sr-only">Stop streaming</span>
+              <span className="sr-only">{t.chatInput.stopStreaming}</span>
             </Button>
           ) : (
             <Button
@@ -145,7 +145,7 @@ export function ChatInput({
               className="px-4"
             >
               {useStreaming ? <Zap className="w-4 h-4" /> : <Send className="w-4 h-4" />}
-              <span className="sr-only">Send message</span>
+              <span className="sr-only">{t.chatInput.sendMessage}</span>
             </Button>
           )}
         </form>
@@ -156,19 +156,19 @@ export function ChatInput({
             {isLoading && !isStreaming && (
               <span className="flex items-center gap-1">
                 <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
-                Sending...
+                {t.chatInput.status.sending}
               </span>
             )}
             {isStreaming && (
               <span className="flex items-center gap-1">
                 <div className="w-1 h-1 bg-current rounded-full animate-bounce"></div>
-                AI is responding...
+                {t.chatInput.status.responding}
               </span>
             )}
           </div>
 
           <div className="text-right">
-            <span>Press Enter to send, Shift + Enter for new line</span>
+            <span>{t.chatInput.keyboardHint}</span>
           </div>
         </div>
       </div>

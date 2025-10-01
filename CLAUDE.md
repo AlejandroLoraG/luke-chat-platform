@@ -67,14 +67,21 @@ The application uses a centralized state model in `src/app/chat/page.tsx`:
 
 ```
 ChatPage (src/app/chat/page.tsx)
-├── State: conversations, currentConversationId
-├── Hooks: useChat, useChatStream
-└── Layout
-    ├── ChatSidebar - Conversation list and selection
-    ├── ChatMessages - Message display with streaming indicator
-    ├── ErrorAlert - Unified error display for both modes
-    └── ChatInput - Dual-mode input with mode toggle
+└── LanguageProvider (wraps entire page)
+    └── ChatPageContent
+        ├── State: conversations, currentConversationId
+        ├── Hooks: useChat, useChatStream, useTranslation
+        └── ChatLayout
+            ├── ChatSidebar - Conversation list and selection
+            ├── Header
+            │   ├── Title & Subtitle (translated)
+            │   └── LanguageToggle (EN | ES)
+            ├── ChatMessages - Message display with streaming indicator
+            ├── ErrorAlert - Unified error display for both modes
+            └── ChatInput - Dual-mode input with mode toggle
 ```
+
+**Important**: The `LanguageProvider` must wrap all components that use translations. It provides the `language`, `setLanguage`, and `t` (translations) via React Context.
 
 ### Type System
 
@@ -98,6 +105,7 @@ All types defined in `src/types/chat.ts`:
   conversation_id?: string;
   workflow_spec?: WorkflowSpec;  // Optional workflow context
   workflow_id?: string;
+  language?: 'en' | 'es';  // Language for AI responses
 }
 ```
 
@@ -109,6 +117,92 @@ data: {"type": "chunk", "content": "partial text"}
 data: {"type": "complete", "conversation_id": "uuid"}
 data: {"type": "error", "error": "message"}
 ```
+
+## Multilingual Support
+
+The application supports English and Spanish with a simple, lightweight i18n implementation.
+
+### Architecture
+
+**Language Context** (`src/contexts/language-context.tsx`):
+- React Context providing global language state
+- Persists user preference to `localStorage` with key `chat-language`
+- Auto-detects browser language on first visit (fallback to English)
+- Provides `language` state, `setLanguage` function, and `t` translation object
+
+**Translation Files** (`src/locales/`):
+- `en.ts`: English translations (TypeScript object)
+- `es.ts`: Spanish translations (strictly typed to match English structure)
+- All UI strings centralized in these files
+
+**Translation Hook** (`src/hooks/use-translation.ts`):
+- Simple wrapper that returns `t` object from context
+- Provides TypeScript autocomplete for translation keys
+- Usage: `const t = useTranslation(); return <h1>{t.header.title}</h1>`
+
+### Language Toggle UI
+
+**LanguageToggle Component** (`src/components/ui/language-toggle.tsx`):
+- Uses shadcn `ToggleGroup` with `type="single"`
+- Displays "EN | ES" buttons
+- Located in top-right of chat header
+- Instant UI language switching with no page reload
+
+### Backend Integration
+
+Both chat hooks (`useChat` and `useChatStream`) automatically include the current language in API requests:
+- Get language from `useLanguage()` hook
+- Add `language` field to `ChatRequest` payload
+- Backend responds in the specified language
+
+### User Experience Flow
+
+1. **First Visit**: Language auto-detected from `navigator.language`
+2. **Language Switch**: User clicks EN/ES toggle → UI updates instantly
+3. **Persistence**: Choice saved to localStorage, survives page reloads
+4. **AI Responses**: Backend receives language parameter, responds accordingly
+
+### Adding New Languages
+
+To add a new language (e.g., French):
+
+1. Update language type in `src/contexts/language-context.tsx`:
+   ```typescript
+   export type Language = 'en' | 'es' | 'fr';
+   ```
+
+2. Create translation file `src/locales/fr.ts`:
+   ```typescript
+   import type { TranslationKeys } from './en';
+   export const fr: TranslationKeys = { /* French translations */ };
+   ```
+
+3. Add to translations dictionary in context:
+   ```typescript
+   const translations = { en, es, fr };
+   ```
+
+4. Update LanguageToggle component to include FR button
+
+5. Update backend `ChatRequest` type if needed
+
+### Translation Keys Structure
+
+Translations are organized by feature area:
+- `header`: Page header (title, subtitle)
+- `sidebar`: Sidebar UI (app title, tabs, empty states, templates)
+- `chatInput`: Input component (placeholders, modes, status messages)
+- `chatMessages`: Message display (welcome message, suggestions)
+- `errors`: Error messages (network, timeout, service unavailable)
+- `language`: Language toggle labels
+
+### Best Practices
+
+- All user-facing strings must be in translation files
+- No hardcoded strings in components
+- Use translation keys with clear hierarchy (e.g., `t.sidebar.emptyState.title`)
+- Error messages are translated for better UX
+- TypeScript ensures all translation keys exist in all languages
 
 ## Key Implementation Details
 
@@ -159,6 +253,30 @@ data: {"type": "error", "error": "message"}
 - Uses `class-variance-authority` for variant management
 - Tailwind utilities via `tailwind-merge` and `clsx`
 
+**Components Used**:
+- `Button` - Primary UI actions
+- `Input` - Text input fields
+- `Card` - Container components
+- `ScrollArea` - Scrollable content areas
+- `Separator` - Visual dividers
+- `Badge` - Status indicators
+- `Avatar` - User/AI avatars
+- `ToggleGroup` - Language selector (EN/ES toggle)
+
+### Dependencies Added for Multilingual Support
+```json
+{
+  "@radix-ui/react-toggle": "^1.1.10",
+  "@radix-ui/react-toggle-group": "^1.1.11"
+}
+```
+
+### localStorage Keys Used
+- `chat-language`: User's selected language (`'en'` or `'es'`)
+  - Set by `LanguageProvider`
+  - Persists across sessions
+  - Falls back to browser language detection if not set
+
 ## Development Guidelines
 
 ### Adding New Features
@@ -174,3 +292,52 @@ data: {"type": "error", "error": "message"}
 
 ### Common Pitfall: Stale Closures
 The hooks use `useRef` to maintain current conversation state references and avoid stale closure issues with async operations. Follow this pattern when extending hook functionality.
+
+Example from `use-chat.ts`:
+```typescript
+// Use ref to prevent stale closure issues
+const conversationsRef = useRef(conversations);
+conversationsRef.current = conversations;
+```
+
+This ensures async operations always access the latest state, even if the component has re-rendered.
+
+### Pattern: Client-Side Hydration Safety
+The `LanguageProvider` uses a pattern to avoid hydration mismatches:
+
+```typescript
+const [isInitialized, setIsInitialized] = useState(false);
+
+useEffect(() => {
+  const initialLanguage = loadLanguage(); // Uses localStorage/browser detection
+  setLanguageState(initialLanguage);
+  setIsInitialized(true);
+}, []);
+
+if (!isInitialized) {
+  return null; // Don't render until client-side initialization is complete
+}
+```
+
+This is **critical** because:
+- Server-side rendering can't access `localStorage` or `navigator.language`
+- Rendering before initialization would cause hydration mismatch errors
+- The component waits for client-side data before rendering
+
+### Pattern: Translation Type Safety
+Spanish translations import the type from English to ensure structural consistency:
+
+```typescript
+// en.ts
+export const en = { /* translations */ } as const;
+export type TranslationKeys = typeof en;
+
+// es.ts
+import type { TranslationKeys } from './en';
+export const es: TranslationKeys = { /* Spanish translations */ };
+```
+
+This ensures:
+- TypeScript enforces identical structure between languages
+- Autocomplete works for all translation keys
+- Missing translations are caught at compile time

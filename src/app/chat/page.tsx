@@ -6,12 +6,16 @@ import { ChatSidebar } from '@/components/chat/chat-sidebar';
 import { ChatMessages } from '@/components/chat/chat-messages';
 import { ChatInput } from '@/components/chat/chat-input';
 import { ErrorAlert } from '@/components/ui/error-alert';
-import { Conversation } from '@/types/chat';
-import { mockConversations, sampleMessages } from '@/lib/mock-data';
+import { LanguageToggle } from '@/components/ui/language-toggle';
+import { Conversation, ChatMessage } from '@/types/chat';
+import { mockConversations } from '@/lib/mock-data';
 import { useChat } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';
+import { LanguageProvider } from '@/contexts/language-context';
+import { useTranslation } from '@/hooks/use-translation';
 
-export default function ChatPage() {
+function ChatPageContent() {
+  const t = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(
     mockConversations[0]?.id || null
@@ -43,17 +47,26 @@ export default function ChatPage() {
 
   // Handle creating a new conversation
   const handleNewChat = useCallback(() => {
+    // Create welcome message with current language
+    const welcomeMessage: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      content: t.chatMessages.welcome.greeting,
+      role: 'assistant',
+      timestamp: new Date(),
+      status: 'sent'
+    };
+
     const newConversation: Conversation = {
       id: `conv-${Date.now()}`,
-      title: 'New Conversation',
-      messages: [...sampleMessages],
+      title: t.header.title,
+      messages: [welcomeMessage],
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     setConversations(prev => [newConversation, ...prev]);
     setCurrentConversationId(newConversation.id);
-  }, []);
+  }, [t]);
 
   // Handle selecting a conversation
   const handleConversationSelect = useCallback((conversationId: string) => {
@@ -105,13 +118,16 @@ export default function ChatPage() {
     >
       {/* Chat Header */}
       <div className="border-b border-border bg-card p-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-semibold">
-            {currentConversation?.title || 'AI Workflow Assistant'}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Get help creating and managing your business workflows
-          </p>
+        <div className="max-w-4xl mx-auto flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-semibold">
+              {currentConversation?.title || t.header.title}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t.header.subtitle}
+            </p>
+          </div>
+          <LanguageToggle />
         </div>
       </div>
 
@@ -149,8 +165,15 @@ export default function ChatPage() {
         isLoading={isLoading}
         isStreaming={isStreaming}
         onStopStreaming={stopStreaming}
-        placeholder="Ask me about workflows, or describe a process you'd like to create..."
       />
     </ChatLayout>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <LanguageProvider>
+      <ChatPageContent />
+    </LanguageProvider>
   );
 }
