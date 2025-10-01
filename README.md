@@ -32,7 +32,7 @@ A modern, real-time AI chat application built with Next.js 15, featuring both st
 ### Prerequisites
 - **Node.js** 18.20.2 or higher
 - **npm** or **yarn** package manager
-- **AI Agent Backend** running on `localhost:8001`
+- **AI Agent Backend** - Development backend at `https://chat.alelo-luqe.fun` (or local at `localhost:8001`)
 
 ### Installation
 
@@ -52,7 +52,12 @@ A modern, real-time AI chat application built with Next.js 15, featuring both st
    cp .env.example .env.local
    ```
 
-   Update `.env.local` with your configuration:
+   The default configuration connects to the development backend:
+   ```env
+   NEXT_PUBLIC_API_BASE_URL=https://chat.alelo-luqe.fun
+   ```
+
+   For local backend development, change to:
    ```env
    NEXT_PUBLIC_API_BASE_URL=http://localhost:8001
    ```
@@ -233,9 +238,11 @@ NODE_ENV=development
 
 ## 📚 Documentation
 
-- **[Phase 1 Documentation](./PHASE1_DOCUMENTATION.md)** - Initial UI development
-- **[Phase 2 Documentation](./PHASE2_STREAMING_DOCUMENTATION.md)** - Streaming integration
-- **[Backend Documentation](./backend-documentation.md)** - API reference
+- **[Environment Configuration](./ENVIRONMENTS.md)** - Local, Staging, and Production setup
+- **[Deployment Guide](./DEPLOYMENT.md)** - Deploy to Dokploy VPS
+- **[Claude Code Guide](./CLAUDE.md)** - For AI-assisted development
+- **[Phase 1 Documentation](./PHASE1_DOCUMENTATION.md)** - Initial UI development (archived)
+- **[Phase 2 Documentation](./PHASE2_STREAMING_DOCUMENTATION.md)** - Streaming integration (archived)
 
 ## 🤝 Contributing
 
