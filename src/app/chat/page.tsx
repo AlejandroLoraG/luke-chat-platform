@@ -6,7 +6,7 @@ import { ChatSidebar } from '@/components/chat/chat-sidebar';
 import { ChatMessages } from '@/components/chat/chat-messages';
 import { ChatInput } from '@/components/chat/chat-input';
 import { ErrorAlert } from '@/components/ui/error-alert';
-import { Conversation, ChatMessage } from '@/types/chat';
+import { Conversation } from '@/types/chat';
 import { mockConversations, sampleMessages } from '@/lib/mock-data';
 import { useChat } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';

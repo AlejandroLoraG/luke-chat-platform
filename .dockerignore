@@ -2,7 +2,7 @@
 node_modules
 npm-debug.log
 yarn-error.log
-package-lock.json
+# package-lock.json is needed for npm ci
 yarn.lock
 pnpm-lock.yaml
 
@@ -28,7 +28,7 @@ coverage
 .env*.local
 .env.development
 .env.test
-.env.production
+# .env.production and .env.staging are needed for builds
 
 # Vercel
 .vercel

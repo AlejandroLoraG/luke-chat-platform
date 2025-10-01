@@ -164,7 +164,7 @@ export class ChatAPIService {
               try {
                 const data = JSON.parse(line.slice(6));
                 yield data as StreamingChatChunk;
-              } catch (parseError) {
+              } catch {
                 console.warn('Failed to parse SSE data:', line);
               }
             }

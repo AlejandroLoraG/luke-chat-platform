@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { chatAPI, APIError } from '@/lib/api-client';
-import type { ChatMessage, Conversation, ChatRequest, StreamingChatChunk } from '@/types/chat';
+import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
 
 interface UseChatStreamReturn {
   // State

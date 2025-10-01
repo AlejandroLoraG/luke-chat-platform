@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface ChatMessagesProps {
   messages: ChatMessageType[];
@@ -43,9 +43,9 @@ export function ChatMessages({
           <div className="p-3 bg-muted rounded-lg text-left">
             <p className="font-medium">Example questions:</p>
             <ul className="mt-2 space-y-1 text-muted-foreground">
-              <li>• "Create a document approval workflow"</li>
-              <li>• "How do I set up an incident management process?"</li>
-              <li>• "Show me workflow templates"</li>
+              <li>• &quot;Create a document approval workflow&quot;</li>
+              <li>• &quot;How do I set up an incident management process?&quot;</li>
+              <li>• &quot;Show me workflow templates&quot;</li>
             </ul>
           </div>
         </div>

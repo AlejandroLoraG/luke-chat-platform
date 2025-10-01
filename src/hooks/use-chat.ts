@@ -111,7 +111,7 @@ export function useChat(
           case 'HTTP_ERROR':
             if (err.status === 404) {
               errorMessage = 'AI assistant service not available.';
-            } else if (err.status >= 500) {
+            } else if (err.status && err.status >= 500) {
               errorMessage = 'AI assistant is temporarily unavailable.';
             }
             break;
