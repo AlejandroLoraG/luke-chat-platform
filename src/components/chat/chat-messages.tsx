@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ChatMessagesProps {
   messages: ChatMessageType[];
@@ -17,6 +18,7 @@ export function ChatMessages({
   isStreaming = false,
   streamingMessageId
 }: ChatMessagesProps) {
+  const t = useTranslation();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -34,18 +36,17 @@ export function ChatMessages({
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Start a conversation</h3>
+          <h3 className="text-lg font-semibold">{t.chatMessages.welcome.title}</h3>
           <p className="text-muted-foreground text-sm">
-            Ask me anything about workflows, business processes, or get help creating and managing your workflows.
+            {t.chatMessages.welcome.subtitle}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 text-sm">
           <div className="p-3 bg-muted rounded-lg text-left">
-            <p className="font-medium">Example questions:</p>
             <ul className="mt-2 space-y-1 text-muted-foreground">
-              <li>• &quot;Create a document approval workflow&quot;</li>
-              <li>• &quot;How do I set up an incident management process?&quot;</li>
-              <li>• &quot;Show me workflow templates&quot;</li>
+              {t.chatMessages.welcome.suggestions.map((suggestion, index) => (
+                <li key={index}>• &quot;{suggestion}&quot;</li>
+              ))}
             </ul>
           </div>
         </div>

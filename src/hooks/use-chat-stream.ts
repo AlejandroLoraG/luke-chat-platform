@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { chatAPI, APIError } from '@/lib/api-client';
 import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
+import { useLanguage } from '@/contexts/language-context';
 
 interface UseChatStreamReturn {
   // State
@@ -18,6 +19,7 @@ export function useChatStream(
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>,
   currentConversationId: string | null
 ): UseChatStreamReturn {
+  const { language, t } = useLanguage();
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingError, setStreamingError] = useState<string | null>(null);
 
@@ -95,6 +97,7 @@ export function useChatStream(
       const chatRequest: ChatRequest = {
         message: message.trim(),
         conversation_id: targetConversationId,
+        language: language,
       };
 
       // Start streaming
@@ -172,19 +175,19 @@ export function useChatStream(
     } catch (err) {
       console.error('Streaming error:', err);
 
-      // Handle different error types
-      let errorMessage = 'Streaming failed. Please try again.';
+      // Handle different error types with translations
+      let errorMessage = t.errors.genericError;
 
       if (err instanceof APIError) {
         switch (err.code) {
           case 'NETWORK_ERROR':
-            errorMessage = 'Connection lost during streaming. Please try again.';
+            errorMessage = t.errors.networkError;
             break;
           case 'TIMEOUT':
-            errorMessage = 'Streaming timed out. Please try again.';
+            errorMessage = t.errors.timeout;
             break;
           case 'STREAM_ERROR':
-            errorMessage = 'AI response was interrupted. Please try again.';
+            errorMessage = t.errors.genericError;
             break;
           default:
             errorMessage = err.message;

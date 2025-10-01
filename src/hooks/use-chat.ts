@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { chatAPI, APIError } from '@/lib/api-client';
 import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
+import { useLanguage } from '@/contexts/language-context';
 
 interface UseChatReturn {
   // State
@@ -17,6 +18,7 @@ export function useChat(
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>,
   currentConversationId: string | null
 ): UseChatReturn {
+  const { language, t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +71,7 @@ export function useChat(
       const chatRequest: ChatRequest = {
         message: message.trim(),
         conversation_id: targetConversationId,
+        language: language,
       };
 
       // Send to backend
@@ -97,22 +100,22 @@ export function useChat(
     } catch (err) {
       console.error('Chat error:', err);
 
-      // Handle different error types
-      let errorMessage = 'Failed to send message. Please try again.';
+      // Handle different error types with translations
+      let errorMessage = t.errors.genericError;
 
       if (err instanceof APIError) {
         switch (err.code) {
           case 'NETWORK_ERROR':
-            errorMessage = 'Unable to connect to AI assistant. Please check your connection.';
+            errorMessage = t.errors.networkError;
             break;
           case 'TIMEOUT':
-            errorMessage = 'Request timed out. Please try again.';
+            errorMessage = t.errors.timeout;
             break;
           case 'HTTP_ERROR':
             if (err.status === 404) {
-              errorMessage = 'AI assistant service not available.';
+              errorMessage = t.errors.serviceUnavailable;
             } else if (err.status && err.status >= 500) {
-              errorMessage = 'AI assistant is temporarily unavailable.';
+              errorMessage = t.errors.serverError;
             }
             break;
           default:

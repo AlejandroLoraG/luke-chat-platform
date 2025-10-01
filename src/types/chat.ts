@@ -22,6 +22,7 @@ export interface ChatRequest {
   workflow_spec?: WorkflowSpec;
   workflow_id?: string;
   conversation_id?: string;
+  language?: 'en' | 'es';
 }
 
 export interface ChatResponse {

@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Plus, MessageCircle, Workflow } from 'lucide-react';
 import { Conversation } from '@/types/chat';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ChatSidebarProps {
   conversations: Conversation[];
@@ -22,6 +23,7 @@ export function ChatSidebar({
   onConversationSelect,
   onNewChat
 }: ChatSidebarProps) {
+  const t = useTranslation();
   const [activeTab, setActiveTab] = useState<'chats' | 'workflows'>('chats');
 
   return (
@@ -30,8 +32,8 @@ export function ChatSidebar({
       <div className="flex-shrink-0 p-6 pb-4">
         {/* App Title */}
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-foreground">AI Assistant</h1>
-          <p className="text-sm text-muted-foreground mt-1">Workflow Management</p>
+          <h1 className="text-xl font-semibold text-foreground">{t.sidebar.appTitle}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t.sidebar.appSubtitle}</p>
         </div>
 
         {/* New Chat Button */}
@@ -41,7 +43,7 @@ export function ChatSidebar({
           variant="outline"
         >
           <Plus className="w-4 h-4 mr-3" />
-          New Chat
+          {t.sidebar.newChat}
         </Button>
 
         {/* Tabs */}
@@ -53,7 +55,7 @@ export function ChatSidebar({
             onClick={() => setActiveTab('chats')}
           >
             <MessageCircle className="w-4 h-4 mr-2" />
-            Chats
+            {t.sidebar.tabs.chats}
           </Button>
           <Button
             variant={activeTab === 'workflows' ? 'default' : 'ghost'}
@@ -62,7 +64,7 @@ export function ChatSidebar({
             onClick={() => setActiveTab('workflows')}
           >
             <Workflow className="w-4 h-4 mr-2" />
-            Workflows
+            {t.sidebar.tabs.workflows}
           </Button>
         </div>
       </div>
@@ -78,8 +80,8 @@ export function ChatSidebar({
                 {conversations.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12">
                     <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-40" />
-                    <p className="text-sm font-medium mb-1">No conversations yet</p>
-                    <p className="text-xs">Start a new chat to begin</p>
+                    <p className="text-sm font-medium mb-1">{t.sidebar.emptyState.title}</p>
+                    <p className="text-xs">{t.sidebar.emptyState.subtitle}</p>
                   </div>
                 ) : (
                   conversations.map((conversation) => (
@@ -99,7 +101,7 @@ export function ChatSidebar({
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MessageCircle className="w-3 h-3" />
-                            {conversation.messages.length} messages
+                            {conversation.messages.length} {conversation.messages.length === 1 ? t.sidebar.messageCount.singular : t.sidebar.messageCount.plural}
                           </span>
                           <span>
                             {conversation.updatedAt.toLocaleDateString()}
@@ -113,8 +115,8 @@ export function ChatSidebar({
             ) : (
               <div className="space-y-3">
                 <div className="mb-4">
-                  <h3 className="text-sm font-medium text-foreground mb-1">Available Templates</h3>
-                  <p className="text-xs text-muted-foreground">Choose a template to get started</p>
+                  <h3 className="text-sm font-medium text-foreground mb-1">{t.sidebar.workflowsSection.title}</h3>
+                  <p className="text-xs text-muted-foreground">{t.sidebar.workflowsSection.subtitle}</p>
                 </div>
 
                 {/* Sample workflows with better spacing */}
@@ -122,12 +124,12 @@ export function ChatSidebar({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">Document Approval</h3>
+                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.documentApproval.title}</h3>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          Standard document approval workflow for team collaboration
+                          {t.sidebar.workflowTemplates.documentApproval.description}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">Template</Badge>
+                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
                     </div>
                   </div>
                 </Card>
@@ -136,12 +138,12 @@ export function ChatSidebar({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">Incident Management</h3>
+                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.incidentManagement.title}</h3>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          IT incident tracking and resolution process
+                          {t.sidebar.workflowTemplates.incidentManagement.description}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">Template</Badge>
+                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
                     </div>
                   </div>
                 </Card>
@@ -150,12 +152,12 @@ export function ChatSidebar({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">Task Management</h3>
+                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.taskManagement.title}</h3>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          Task assignment and tracking workflow
+                          {t.sidebar.workflowTemplates.taskManagement.description}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">Template</Badge>
+                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
                     </div>
                   </div>
                 </Card>
@@ -164,12 +166,12 @@ export function ChatSidebar({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">Request Handling</h3>
+                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.requestHandling.title}</h3>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          General request processing and approval
+                          {t.sidebar.workflowTemplates.requestHandling.description}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">Template</Badge>
+                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
                     </div>
                   </div>
                 </Card>
@@ -178,12 +180,12 @@ export function ChatSidebar({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">Document Review</h3>
+                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.documentReview.title}</h3>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          Multi-stage document review and publishing
+                          {t.sidebar.workflowTemplates.documentReview.description}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">Template</Badge>
+                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
                     </div>
                   </div>
                 </Card>

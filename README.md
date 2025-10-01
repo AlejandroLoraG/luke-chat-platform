@@ -14,6 +14,12 @@ A modern, real-time AI chat application built with Next.js 15, featuring both st
 - **Standard Mode** 💬 - Traditional request-response communication
 - **Stream Interruption** - Stop streaming responses anytime with instant feedback
 
+### 🌍 **Multilingual Support**
+- **English & Spanish** - Full UI and AI responses in both languages
+- **Smart Language Detection** - Auto-detects browser language on first visit
+- **Instant Language Switching** - Toggle between EN/ES with no page reload
+- **Persistent Preference** - Saves language choice to localStorage
+
 ### 🎨 **Modern UI/UX**
 - **Fixed Sidebar Layout** - Persistent navigation with independent scrolling
 - **Responsive Design** - Optimized for all screen sizes
@@ -26,6 +32,7 @@ A modern, real-time AI chat application built with Next.js 15, featuring both st
 - **TypeScript** throughout for type safety
 - **Optimistic UI Updates** for immediate user feedback
 - **AbortController** for clean stream cancellation
+- **Lightweight i18n** - Simple, type-safe translation system
 
 ## 🚦 Quick Start
 
@@ -87,14 +94,21 @@ src/
 │   │   ├── chat-message.tsx  # Individual message component
 │   │   └── chat-input.tsx    # Dual-mode input with controls
 │   └── ui/                   # Reusable UI components (shadcn/ui)
+│       └── language-toggle.tsx # Language selector (EN/ES)
+├── contexts/
+│   └── language-context.tsx  # Global language state management
 ├── hooks/
 │   ├── use-chat.ts           # Standard chat functionality
-│   └── use-chat-stream.ts    # Streaming chat functionality
+│   ├── use-chat-stream.ts    # Streaming chat functionality
+│   └── use-translation.ts    # Translation hook
 ├── lib/
 │   ├── api-client.ts         # API service with streaming support
 │   ├── config.ts             # Application configuration
 │   ├── mock-data.ts          # Development mock data
 │   └── utils.ts              # Utility functions
+├── locales/
+│   ├── en.ts                 # English translations
+│   └── es.ts                 # Spanish translations
 └── types/
     └── chat.ts               # TypeScript type definitions
 ```
@@ -115,6 +129,7 @@ The application expects an AI Agent backend with these endpoints:
   conversation_id?: string;
   workflow_spec?: WorkflowSpec;
   workflow_id?: string;
+  language?: 'en' | 'es';  // Language for AI responses
 }
 ```
 
@@ -191,6 +206,20 @@ npm run type-check
 - **shadcn/ui** components for consistent design
 - **Lucide React** icons for modern iconography
 - **Custom styling** with Tailwind utilities
+
+## 🌍 Language Support
+
+### Switching Languages
+Click the **EN | ES** toggle in the top-right corner of the chat header to switch between English and Spanish.
+
+### How It Works
+1. **Auto-Detection** - First visit detects browser language (Spanish if browser is `es-*`, English otherwise)
+2. **Instant UI Updates** - All text changes immediately (buttons, labels, messages, errors)
+3. **AI Response Language** - Backend receives language parameter and responds accordingly
+4. **Persistence** - Choice saved to localStorage, survives page reloads
+
+### Adding More Languages
+The translation system is designed to be easily extensible. See [CLAUDE.md](./CLAUDE.md#multilingual-support) for instructions on adding new languages.
 
 ## 🔧 Configuration
 
