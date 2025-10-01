@@ -53,7 +53,7 @@ export const en = {
 
   // Chat Input
   chatInput: {
-    placeholder: 'Ask me about workflows, or describe a process you'd like to create...',
+    placeholder: 'Ask me about workflows, or describe a process you\'d like to create...',
     placeholderDefault: 'Type your message...',
     placeholderStreaming: 'AI is streaming...',
     placeholderLoading: 'AI is responding...',
