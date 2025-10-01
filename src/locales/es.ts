@@ -13,11 +13,11 @@ export const es: TranslationKeys = {
     appSubtitle: 'Gestión de Flujos de Trabajo',
     newChat: 'Nueva Conversación',
     tabs: {
-      chats: 'Conversaciones',
+      chats: 'Chats',
       workflows: 'Flujos',
     },
     emptyState: {
-      title: 'Aún no hay conversaciones',
+      title: 'Aún no hay chats',
       subtitle: 'Inicia una nueva conversación para comenzar',
     },
     messageCount: {
