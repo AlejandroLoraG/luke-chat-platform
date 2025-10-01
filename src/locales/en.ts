@@ -104,7 +104,7 @@ export const en = {
     english: 'EN',
     spanish: 'ES',
   },
-} as const;
+};
 
-// Export type for TypeScript autocomplete
+// Export type for TypeScript autocomplete (structure only, not literal values)
 export type TranslationKeys = typeof en;

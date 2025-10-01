@@ -101,7 +101,7 @@ export function useChat(
       console.error('Chat error:', err);
 
       // Handle different error types with translations
-      let errorMessage = t.errors.genericError;
+      let errorMessage: string = t.errors.genericError;
 
       if (err instanceof APIError) {
         switch (err.code) {
@@ -141,7 +141,7 @@ export function useChat(
     } finally {
       setIsLoading(false);
     }
-  }, [currentConversationId, setConversations]);
+  }, [currentConversationId, setConversations, language, t]);
 
   return {
     isLoading,

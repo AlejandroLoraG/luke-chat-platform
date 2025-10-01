@@ -176,7 +176,7 @@ export function useChatStream(
       console.error('Streaming error:', err);
 
       // Handle different error types with translations
-      let errorMessage = t.errors.genericError;
+      let errorMessage: string = t.errors.genericError;
 
       if (err instanceof APIError) {
         switch (err.code) {
@@ -220,7 +220,7 @@ export function useChatStream(
       currentStreamingMessageRef.current = null;
       setIsStreaming(false);
     }
-  }, [currentConversationId, setConversations]);
+  }, [currentConversationId, setConversations, language, t]);
 
   return {
     isStreaming,
