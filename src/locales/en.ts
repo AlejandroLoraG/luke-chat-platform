@@ -83,6 +83,7 @@ export const en = {
         'Show me incident management templates',
         'Explain workflow automations',
       ],
+      greeting: 'Hello! I\'m your AI workflow assistant. I can help you create, modify, and manage business workflows. What would you like to work on today?',
     },
     assistant: 'AI Assistant',
   },

@@ -14,7 +14,7 @@ export const es: TranslationKeys = {
     newChat: 'Nueva Conversación',
     tabs: {
       chats: 'Conversaciones',
-      workflows: 'Flujos de Trabajo',
+      workflows: 'Flujos',
     },
     emptyState: {
       title: 'Aún no hay conversaciones',
@@ -85,6 +85,7 @@ export const es: TranslationKeys = {
         'Muéstrame plantillas de gestión de incidentes',
         'Explica las automatizaciones de flujos de trabajo',
       ],
+      greeting: '¡Hola! Soy tu asistente de flujos de trabajo con IA. Puedo ayudarte a crear, modificar y gestionar flujos de trabajo empresariales. ¿En qué te gustaría trabajar hoy?',
     },
     assistant: 'Asistente IA',
   },

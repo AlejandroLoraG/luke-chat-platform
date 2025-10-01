@@ -7,8 +7,8 @@ import { ChatMessages } from '@/components/chat/chat-messages';
 import { ChatInput } from '@/components/chat/chat-input';
 import { ErrorAlert } from '@/components/ui/error-alert';
 import { LanguageToggle } from '@/components/ui/language-toggle';
-import { Conversation } from '@/types/chat';
-import { mockConversations, sampleMessages } from '@/lib/mock-data';
+import { Conversation, ChatMessage } from '@/types/chat';
+import { mockConversations } from '@/lib/mock-data';
 import { useChat } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';
 import { LanguageProvider } from '@/contexts/language-context';
@@ -47,17 +47,26 @@ function ChatPageContent() {
 
   // Handle creating a new conversation
   const handleNewChat = useCallback(() => {
+    // Create welcome message with current language
+    const welcomeMessage: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      content: t.chatMessages.welcome.greeting,
+      role: 'assistant',
+      timestamp: new Date(),
+      status: 'sent'
+    };
+
     const newConversation: Conversation = {
       id: `conv-${Date.now()}`,
-      title: 'New Conversation',
-      messages: [...sampleMessages],
+      title: t.header.title,
+      messages: [welcomeMessage],
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     setConversations(prev => [newConversation, ...prev]);
     setCurrentConversationId(newConversation.id);
-  }, []);
+  }, [t]);
 
   // Handle selecting a conversation
   const handleConversationSelect = useCallback((conversationId: string) => {
