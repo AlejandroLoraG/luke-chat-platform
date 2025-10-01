@@ -1,4 +1,4 @@
-import { Conversation, ChatMessage } from '@/types/chat';
+import { Conversation } from '@/types/chat';
 
 // Mock conversations for testing
 export const mockConversations: Conversation[] = [
