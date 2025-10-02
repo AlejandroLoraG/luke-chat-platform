@@ -37,6 +37,8 @@ class HTTPClient {
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
+        mode: 'cors',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -121,6 +123,8 @@ export class ChatAPIService {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'text/event-stream',
