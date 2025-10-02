@@ -57,7 +57,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t border-border/50 bg-background">
+    <div className="flex-shrink-0 border-t border-border/50 bg-background">
       <div className="px-6 py-4">
         {/* User Profile + Input Form */}
         <div className="flex items-center gap-4">

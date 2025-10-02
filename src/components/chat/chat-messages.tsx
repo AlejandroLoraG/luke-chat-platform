@@ -27,7 +27,7 @@ export function ChatMessages({
   }, [messages, isStreaming]);
 
   return (
-    <ScrollArea className="flex-1 bg-background" ref={scrollAreaRef}>
+    <ScrollArea className="flex-1 min-h-0 bg-background" ref={scrollAreaRef}>
       <div className="min-h-full">
         {messages.map((message) => (
           <ChatMessage

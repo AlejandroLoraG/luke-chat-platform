@@ -104,6 +104,13 @@ export const en = {
     english: 'EN',
     spanish: 'ES',
   },
+
+  // Action Buttons
+  actions: {
+    share: 'Share',
+    publish: 'Publish',
+    myWorkflows: 'My workflows',
+  },
 };
 
 // Export type for TypeScript autocomplete (structure only, not literal values)

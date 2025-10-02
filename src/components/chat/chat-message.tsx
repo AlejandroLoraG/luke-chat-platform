@@ -3,6 +3,8 @@
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -18,7 +20,10 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const getAssistantInitial = () => 'C';
 
   return (
-    <div className="flex gap-3 px-6 py-4 border-b border-border/50 hover:bg-muted/30 transition-colors">
+    <div className={cn(
+      "flex gap-3 px-6 py-4 border-b border-border/50 hover:bg-muted/30 transition-colors",
+      isUser && "flex-row-reverse"
+    )}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         <div className={cn(
@@ -31,20 +36,28 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       </div>
 
       {/* Message Content */}
-      <div className="flex-1 min-w-0 space-y-1.5">
+      <div className={cn(
+        "flex-1 min-w-0 space-y-1.5",
+        isUser && "flex flex-col items-end"
+      )}>
         {/* Message Bubble */}
         <div className={cn(
           "inline-block rounded-lg px-4 py-2.5 max-w-[85%]",
           "bg-white border border-border shadow-sm",
           "text-sm leading-relaxed text-foreground"
         )}>
-          {message.content || (
+          {message.content ? (
+            <div className="markdown-content">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+              {/* Streaming cursor */}
+              {isStreaming && isAssistant && (
+                <span className="inline-block w-0.5 h-4 ml-1 bg-foreground animate-pulse" />
+              )}
+            </div>
+          ) : (
             <span className="text-muted-foreground italic">No content</span>
-          )}
-
-          {/* Streaming cursor */}
-          {isStreaming && isAssistant && (
-            <span className="inline-block w-0.5 h-4 ml-1 bg-foreground animate-pulse" />
           )}
         </div>
 
