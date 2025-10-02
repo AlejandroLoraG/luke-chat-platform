@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 
 interface ChatLayoutProps {
   sidebar: ReactNode;
+  workflowPanel: ReactNode;
   children: ReactNode;
 }
 
-export function ChatLayout({ sidebar, children }: ChatLayoutProps) {
+export function ChatLayout({ sidebar, workflowPanel, children }: ChatLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="h-screen bg-background overflow-hidden">
+    <div className="h-screen bg-background overflow-hidden flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -22,14 +23,14 @@ export function ChatLayout({ sidebar, children }: ChatLayoutProps) {
         />
       )}
 
-      {/* Sidebar - responsive */}
+      {/* Left Sidebar - Workflows */}
       <aside
         className={`
-          fixed left-0 top-0 h-full w-72 z-50
-          border-r border-border bg-card
+          fixed lg:relative left-0 top-0 h-full w-72 z-50
+          border-r border-border bg-muted
           transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 flex-shrink-0
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Mobile close button */}
@@ -48,15 +49,15 @@ export function ChatLayout({ sidebar, children }: ChatLayoutProps) {
         {sidebar}
       </aside>
 
-      {/* Main content area */}
-      <div className="h-full lg:ml-72 flex flex-col">
+      {/* Center - Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-background">
         {/* Mobile menu button */}
         <div className="lg:hidden fixed top-4 left-4 z-30">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setSidebarOpen(true)}
-            className="h-10 w-10 p-0 bg-background shadow-md"
+            className="h-10 w-10 p-0 bg-background shadow-md border-border"
           >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Open sidebar</span>
@@ -65,6 +66,11 @@ export function ChatLayout({ sidebar, children }: ChatLayoutProps) {
 
         {children}
       </div>
+
+      {/* Right Panel - Workflow Visualization */}
+      <aside className="hidden xl:block w-96 border-l border-border bg-background flex-shrink-0">
+        {workflowPanel}
+      </aside>
     </div>
   );
 }

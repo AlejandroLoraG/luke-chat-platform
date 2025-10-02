@@ -5,6 +5,7 @@ import { ChatLayout } from '@/components/chat/chat-layout';
 import { ChatSidebar } from '@/components/chat/chat-sidebar';
 import { ChatMessages } from '@/components/chat/chat-messages';
 import { ChatInput } from '@/components/chat/chat-input';
+import { WorkflowPanel } from '@/components/workflow/workflow-panel';
 import { ErrorAlert } from '@/components/ui/error-alert';
 import { LanguageToggle } from '@/components/ui/language-toggle';
 import { Conversation, ChatMessage } from '@/types/chat';
@@ -115,19 +116,44 @@ function ChatPageContent() {
           onNewChat={handleNewChat}
         />
       }
+      workflowPanel={<WorkflowPanel />}
     >
-      {/* Chat Header */}
-      <div className="border-b border-border/50 bg-gradient-to-r from-background via-background to-muted/10 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-lg truncate">
-              {currentConversation?.title || t.header.title}
-            </h2>
-            <p className="text-sm text-muted-foreground font-medium">
-              {t.header.subtitle}
-            </p>
+      {/* Chat Header - Breadcrumbs + Action Buttons */}
+      <div className="border-b border-border/50 bg-background">
+        <div className="px-6 py-3.5 flex items-center justify-between gap-4">
+          {/* Left: Breadcrumbs + Edit Icon */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <nav className="flex items-center gap-2 text-sm">
+              <button className="text-muted-foreground hover:text-foreground transition-colors">
+                My workflows
+              </button>
+              <span className="text-muted-foreground">/</span>
+              <button className="text-foreground font-medium hover:text-primary transition-colors truncate max-w-xs">
+                {currentConversation?.title || "Nuevo workflow"}
+              </button>
+            </nav>
+            <button className="p-1 hover:bg-muted rounded">
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
           </div>
-          <LanguageToggle />
+
+          {/* Right: Action Buttons + Language Toggle */}
+          <div className="flex items-center gap-2">
+            <button className="px-4 py-2 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span>Compartir</span>
+            </button>
+            <button className="px-4 py-2 text-sm font-medium bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
+              Publicar
+            </button>
+            <div className="ml-2">
+              <LanguageToggle />
+            </div>
+          </div>
         </div>
       </div>
 

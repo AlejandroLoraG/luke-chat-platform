@@ -1,8 +1,7 @@
 "use client";
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
-import { User, Bot, Clock, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
@@ -14,124 +13,53 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
 
-  const getStatusIcon = () => {
-    if (isStreaming) {
-      return (
-        <div className="flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-primary animate-pulse" />
-        </div>
-      );
-    }
-
-    switch (message.status) {
-      case 'sending':
-        return <Clock className="w-3 h-3 text-muted-foreground animate-spin" />;
-      case 'sent':
-        return <CheckCircle2 className="w-3 h-3 text-emerald-500 dark:text-emerald-400" />;
-      case 'error':
-        return <AlertCircle className="w-3 h-3 text-destructive" />;
-      default:
-        return null;
-    }
-  };
+  // Get user initial
+  const getUserInitial = () => 'L';
+  const getAssistantInitial = () => 'C';
 
   return (
-    <div
-      className={cn(
-        "group flex gap-3 max-w-4xl mx-auto w-full px-4 py-3 hover:bg-accent/5 transition-colors",
-        isUser && "flex-row-reverse"
-      )}
-    >
+    <div className="flex gap-3 px-6 py-4 border-b border-border/50 hover:bg-muted/30 transition-colors">
       {/* Avatar */}
-      <Avatar className={cn(
-        "w-9 h-9 flex-shrink-0 ring-2 ring-offset-2",
-        isUser && "ring-primary/20 ring-offset-background",
-        isAssistant && "ring-primary/10 ring-offset-background"
-      )}>
-        <AvatarFallback className={cn(
-          "transition-colors",
-          isUser && "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground",
-          isAssistant && "bg-gradient-to-br from-secondary via-secondary to-muted text-secondary-foreground"
+      <div className="flex-shrink-0">
+        <div className={cn(
+          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold",
+          isUser && "bg-gray-600 text-white",
+          isAssistant && "bg-gray-700 text-white"
         )}>
-          {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-        </AvatarFallback>
-      </Avatar>
+          {isUser ? getUserInitial() : getAssistantInitial()}
+        </div>
+      </div>
 
       {/* Message Content */}
-      <div className={cn(
-        "flex-1 space-y-2 min-w-0",
-        isUser && "flex flex-col items-end"
-      )}>
+      <div className="flex-1 min-w-0 space-y-1.5">
         {/* Message Header */}
-        <div className={cn(
-          "flex items-center gap-2 text-sm",
-          isUser && "flex-row-reverse"
-        )}>
-          <span className="font-semibold text-foreground">
-            {isUser ? 'You' : 'AI Assistant'}
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-medium text-foreground">
+            {isUser ? '¿Qué flujo de trabajo quieres crear?' : "What's Preline UI?"}
           </span>
-          <span className="text-muted-foreground text-xs font-medium">
-            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          {getStatusIcon()}
         </div>
 
         {/* Message Bubble */}
         <div className={cn(
-          "relative rounded-2xl px-4 py-3 shadow-sm",
-          "transition-all duration-200",
-          "max-w-[85%] sm:max-w-[80%]",
-          isUser && [
-            "bg-gradient-to-br from-primary to-primary/90",
-            "text-primary-foreground",
-            "ml-auto",
-            "rounded-tr-sm"
-          ],
-          isAssistant && [
-            "bg-card border border-border",
-            "text-card-foreground",
-            "rounded-tl-sm",
-            "hover:border-primary/20 hover:shadow-md"
-          ],
-          message.status === 'error' && "border-destructive/50 bg-destructive/5"
+          "inline-block rounded-lg px-4 py-2.5 max-w-[85%]",
+          "bg-white border border-border shadow-sm",
+          "text-sm leading-relaxed text-foreground"
         )}>
-          {/* Content */}
-          <div className={cn(
-            "text-sm leading-relaxed whitespace-pre-wrap break-words",
-            isUser && "text-primary-foreground",
-            isAssistant && "text-foreground"
-          )}>
-            {message.content || (
-              <span className="text-muted-foreground italic">No content</span>
-            )}
-          </div>
+          {message.content || (
+            <span className="text-muted-foreground italic">No content</span>
+          )}
 
-          {/* Streaming cursor effect */}
+          {/* Streaming cursor */}
           {isStreaming && isAssistant && (
-            <span className="inline-block w-1.5 h-4 ml-1 bg-primary animate-pulse" />
+            <span className="inline-block w-0.5 h-4 ml-1 bg-foreground animate-pulse" />
           )}
         </div>
 
-        {/* Streaming indicator for assistant messages */}
-        {isStreaming && isAssistant && (
-          <div className={cn(
-            "flex items-center gap-2 text-xs text-muted-foreground",
-            "animate-in fade-in-50 duration-300"
-          )}>
-            <div className="flex space-x-1">
-              <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce"></div>
-            </div>
-            <span className="font-medium">AI is responding...</span>
-          </div>
-        )}
-
-        {/* Error message indicator */}
-        {message.status === 'error' && (
-          <div className="flex items-center gap-1.5 text-xs text-destructive">
-            <AlertCircle className="w-3 h-3" />
-            <span className="font-medium">Failed to send</span>
+        {/* Status - Sent indicator */}
+        {!isStreaming && message.status === 'sent' && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Check className="w-3 h-3" />
+            <span>Sent</span>
           </div>
         )}
       </div>
