@@ -1,10 +1,13 @@
+import { MessageRole, MessageStatus, StreamingEventType } from '@/lib/enums';
+import type { Language } from '@/contexts/language-context';
+
 // Chat message types
 export interface ChatMessage {
   id: string;
   content: string;
-  role: 'user' | 'assistant';
+  role: MessageRole;
   timestamp: Date;
-  status?: 'sending' | 'sent' | 'error';
+  status?: MessageStatus;
 }
 
 // Conversation types
@@ -22,7 +25,7 @@ export interface ChatRequest {
   workflow_spec?: WorkflowSpec;
   workflow_id?: string;
   conversation_id?: string;
-  language?: 'en' | 'es';
+  language?: Language;
 }
 
 export interface ChatResponse {
@@ -34,7 +37,7 @@ export interface ChatResponse {
 }
 
 export interface StreamingChatChunk {
-  type: 'start' | 'chunk' | 'complete' | 'error';
+  type: StreamingEventType;
   content?: string;
   conversation_id?: string;
   prompt_count?: number;
