@@ -5,93 +5,49 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: rgb(var(--background));
-  --color-foreground: rgb(var(--foreground));
+  --color-background: #ffffff;
+  --color-foreground: #1f2937;
   --font-sans: Inter, var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
 
-:root {
-  --radius: 0.625rem;
-  /* Backgrounds - Light theme */
-  --background: 255 255 255; /* #FFFFFF */
-  --foreground: 31 41 55; /* #1F2937 - gray-800 */
+  --color-card: #ffffff;
+  --color-card-foreground: #1f2937;
 
-  /* Card/Surface */
-  --card: 255 255 255; /* #FFFFFF */
-  --card-foreground: 31 41 55; /* #1F2937 */
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1f2937;
 
-  /* Popover */
-  --popover: 255 255 255;
-  --popover-foreground: 31 41 55;
+  --color-primary: #6366f1;
+  --color-primary-foreground: #ffffff;
 
-  /* Primary - Indigo/Purple from Figma */
-  --primary: 99 102 241; /* #6366F1 - indigo-500 */
-  --primary-foreground: 255 255 255;
+  --color-secondary: #f3f4f6;
+  --color-secondary-foreground: #1f2937;
 
-  /* Secondary */
-  --secondary: 243 244 246; /* #F3F4F6 - gray-100 */
-  --secondary-foreground: 31 41 55;
+  --color-muted: #f9fafb;
+  --color-muted-foreground: #6b7280;
 
-  /* Muted - for backgrounds */
-  --muted: 249 250 251; /* #F9FAFB - gray-50 */
-  --muted-foreground: 107 114 128; /* #6B7280 - gray-500 */
+  --color-accent: #eef2ff;
+  --color-accent-foreground: #4338ca;
 
-  /* Accent - light purple/lavender for selections */
-  --accent: 238 242 255; /* #EEF2FF - indigo-50 */
-  --accent-foreground: 67 56 202; /* #4338CA - indigo-700 */
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
 
-  /* Destructive */
-  --destructive: 239 68 68; /* #EF4444 - red-500 */
-  --destructive-foreground: 255 255 255;
+  --color-border: #e5e7eb;
+  --color-input: #e5e7eb;
+  --color-ring: #6366f1;
 
-  /* Border */
-  --border: 229 231 235; /* #E5E7EB - gray-200 */
-  --input: 229 231 235;
-  --ring: 99 102 241; /* matches primary */
+  --color-sidebar: #f9fafb;
+  --color-sidebar-foreground: #1f2937;
+  --color-sidebar-primary: #6366f1;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #eef2ff;
+  --color-sidebar-accent-foreground: #4338ca;
+  --color-sidebar-border: #e5e7eb;
+  --color-sidebar-ring: #6366f1;
 
-  /* Sidebar - light gray */
-  --sidebar: 249 250 251; /* #F9FAFB */
-  --sidebar-foreground: 31 41 55;
-  --sidebar-primary: 99 102 241; /* indigo */
-  --sidebar-primary-foreground: 255 255 255;
-  --sidebar-accent: 238 242 255; /* indigo-50 */
-  --sidebar-accent-foreground: 67 56 202;
-  --sidebar-border: 229 231 235;
-  --sidebar-ring: 99 102 241;
+  --radius-sm: calc(0.625rem - 4px);
+  --radius-md: calc(0.625rem - 2px);
+  --radius-lg: 0.625rem;
+  --radius-xl: calc(0.625rem + 4px);
 }
 
 .dark {
