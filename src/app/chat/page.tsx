@@ -117,13 +117,13 @@ function ChatPageContent() {
       }
     >
       {/* Chat Header */}
-      <div className="border-b border-border bg-card p-4">
-        <div className="max-w-4xl mx-auto flex items-start justify-between gap-4">
-          <div>
-            <h2 className="font-semibold">
+      <div className="border-b border-border/50 bg-gradient-to-r from-background via-background to-muted/10 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold text-lg truncate">
               {currentConversation?.title || t.header.title}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">
               {t.header.subtitle}
             </p>
           </div>

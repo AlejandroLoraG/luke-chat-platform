@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Square, Zap, MessageSquare } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -65,37 +66,49 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t border-border bg-background p-4">
-      <div className="max-w-4xl mx-auto space-y-3">
+    <div className="border-t border-border/50 bg-gradient-to-b from-background to-muted/5 backdrop-blur-sm">
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
         {/* Streaming Mode Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="inline-flex items-center rounded-lg bg-muted/50 p-1 gap-1">
             <Button
               type="button"
-              variant={useStreaming ? "default" : "outline"}
+              variant="ghost"
               size="sm"
               onClick={() => setUseStreaming(true)}
               disabled={isLoading || isStreaming}
-              className="flex items-center gap-1.5"
+              className={cn(
+                "h-8 px-3 gap-1.5 transition-all",
+                useStreaming && "bg-background shadow-sm"
+              )}
             >
-              <Zap className="w-3 h-3" />
-              <span className="text-xs">{t.chatInput.modes.streaming}</span>
+              <Zap className={cn(
+                "w-3.5 h-3.5 transition-colors",
+                useStreaming ? "text-primary" : "text-muted-foreground"
+              )} />
+              <span className="text-xs font-medium">{t.chatInput.modes.streaming}</span>
             </Button>
             <Button
               type="button"
-              variant={!useStreaming ? "default" : "outline"}
+              variant="ghost"
               size="sm"
               onClick={() => setUseStreaming(false)}
               disabled={isLoading || isStreaming}
-              className="flex items-center gap-1.5"
+              className={cn(
+                "h-8 px-3 gap-1.5 transition-all",
+                !useStreaming && "bg-background shadow-sm"
+              )}
             >
-              <MessageSquare className="w-3 h-3" />
-              <span className="text-xs">{t.chatInput.modes.standard}</span>
+              <MessageSquare className={cn(
+                "w-3.5 h-3.5 transition-colors",
+                !useStreaming ? "text-primary" : "text-muted-foreground"
+              )} />
+              <span className="text-xs font-medium">{t.chatInput.modes.standard}</span>
             </Button>
           </div>
 
-          {/* Mode Description */}
-          <div className="text-xs text-muted-foreground">
+          {/* Mode Description - hidden on mobile */}
+          <div className="hidden sm:block text-xs text-muted-foreground font-medium">
             {useStreaming ? t.chatInput.modes.streamingDescription : t.chatInput.modes.standardDescription}
           </div>
         </div>
@@ -114,12 +127,23 @@ export function ChatInput({
                 t.chatInput.placeholder
               }
               disabled={isLoading || disabled || isStreaming}
-              className="pr-12"
+              className={cn(
+                "h-12 px-4 pr-16 text-base rounded-xl",
+                "border-border/50 bg-background",
+                "focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
+                "placeholder:text-muted-foreground/60",
+                "transition-all duration-200",
+                "shadow-sm hover:shadow-md focus:shadow-lg"
+              )}
             />
 
-            {/* Character count (optional) */}
+            {/* Character count */}
             {message.length > 0 && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+              <div className={cn(
+                "absolute right-4 top-1/2 -translate-y-1/2",
+                "text-xs font-medium tabular-nums",
+                message.length > 500 ? "text-destructive" : "text-muted-foreground"
+              )}>
                 {message.length}
               </div>
             )}
@@ -131,44 +155,64 @@ export function ChatInput({
               type="button"
               onClick={handleStop}
               variant="destructive"
-              size="default"
-              className="px-4"
+              size="lg"
+              className="h-12 w-12 rounded-xl shadow-md hover:shadow-lg transition-all p-0"
             >
-              <Square className="w-4 h-4" />
+              <Square className="w-5 h-5" fill="currentColor" />
               <span className="sr-only">{t.chatInput.stopStreaming}</span>
             </Button>
           ) : (
             <Button
               type="submit"
               disabled={!message.trim() || isLoading || disabled}
-              size="default"
-              className="px-4"
+              size="lg"
+              className={cn(
+                "h-12 w-12 rounded-xl shadow-md transition-all p-0",
+                !message.trim() || isLoading || disabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:shadow-lg hover:scale-105 active:scale-95"
+              )}
             >
-              {useStreaming ? <Zap className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+              {useStreaming ? (
+                <Zap className="w-5 h-5" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
               <span className="sr-only">{t.chatInput.sendMessage}</span>
             </Button>
           )}
         </form>
 
         {/* Status indicators */}
-        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-4">
             {isLoading && !isStreaming && (
-              <span className="flex items-center gap-1">
-                <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
-                {t.chatInput.status.sending}
+              <span className="flex items-center gap-2 text-muted-foreground font-medium animate-in fade-in-50">
+                <div className="flex space-x-1">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+                </div>
+                <span>{t.chatInput.status.sending}</span>
               </span>
             )}
             {isStreaming && (
-              <span className="flex items-center gap-1">
-                <div className="w-1 h-1 bg-current rounded-full animate-bounce"></div>
-                {t.chatInput.status.responding}
+              <span className="flex items-center gap-2 text-primary font-medium animate-in fade-in-50">
+                <div className="flex space-x-1">
+                  <div className="w-1.5 h-1.5 bg-current rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 bg-current rounded-full animate-pulse [animation-delay:-0.2s]"></div>
+                  <div className="w-1.5 h-1.5 bg-current rounded-full animate-pulse [animation-delay:-0.4s]"></div>
+                </div>
+                <span>{t.chatInput.status.responding}</span>
               </span>
             )}
           </div>
 
-          <div className="text-right">
-            <span>{t.chatInput.keyboardHint}</span>
+          <div className="text-muted-foreground/60 font-medium hidden sm:block">
+            <kbd className="px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs font-mono border border-border/50">
+              Enter
+            </kbd>
+            <span className="ml-1">{t.chatInput.keyboardHint}</span>
           </div>
         </div>
       </div>
