@@ -195,3 +195,25 @@
     margin: 1em 0;
   }
 }
+
+/* Resizable Panel Handles */
+[data-panel-resize-handle-enabled] {
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+[data-panel-resize-handle-enabled]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-ring);
+}
+
+/* Horizontal resize handle cursor */
+[data-panel-resize-handle-enabled][data-panel-group-direction="horizontal"] {
+  cursor: col-resize;
+}
+
+/* Vertical resize handle cursor */
+[data-panel-resize-handle-enabled][data-panel-group-direction="vertical"] {
+  cursor: row-resize;
+}
