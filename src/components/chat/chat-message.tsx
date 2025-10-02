@@ -1,19 +1,21 @@
 "use client";
 
+import { memo } from 'react';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { MessageRole, MessageStatus } from '@/lib/enums';
 
 interface ChatMessageProps {
   message: ChatMessageType;
   isStreaming?: boolean;
 }
 
-export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
-  const isUser = message.role === 'user';
-  const isAssistant = message.role === 'assistant';
+export const ChatMessage = memo(function ChatMessage({ message, isStreaming }: ChatMessageProps) {
+  const isUser = message.role === MessageRole.USER;
+  const isAssistant = message.role === MessageRole.ASSISTANT;
 
   // Get user initial
   const getUserInitial = () => 'L';
@@ -62,7 +64,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         </div>
 
         {/* Status - Sent indicator */}
-        {!isStreaming && message.status === 'sent' && (
+        {!isStreaming && message.status === MessageStatus.SENT && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Check className="w-3 h-3" />
             <span>Sent</span>
@@ -71,4 +73,4 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       </div>
     </div>
   );
-}
+});

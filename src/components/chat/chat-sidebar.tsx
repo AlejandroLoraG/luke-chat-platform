@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, MessageCircle, Users, ChevronDown } from 'lucide-react';
@@ -16,7 +16,7 @@ interface ChatSidebarProps {
   onNewChat: () => void;
 }
 
-export function ChatSidebar({
+export const ChatSidebar = memo(function ChatSidebar({
   conversations,
   currentConversationId,
   onConversationSelect,
@@ -128,4 +128,4 @@ export function ChatSidebar({
       </div>
     </div>
   );
-}
+});

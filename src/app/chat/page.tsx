@@ -14,6 +14,8 @@ import { useChat } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';
 import { LanguageProvider } from '@/contexts/language-context';
 import { useTranslation } from '@/hooks/use-translation';
+import { MessageRole, MessageStatus } from '@/lib/enums';
+import { generateConversationId, generateMessageId } from '@/lib/utils/ids';
 
 function ChatPageContent() {
   const t = useTranslation();
@@ -50,15 +52,15 @@ function ChatPageContent() {
   const handleNewChat = useCallback(() => {
     // Create welcome message with current language
     const welcomeMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
+      id: generateMessageId(),
       content: t.chatMessages.welcome.greeting,
-      role: 'assistant',
+      role: MessageRole.ASSISTANT,
       timestamp: new Date(),
-      status: 'sent'
+      status: MessageStatus.SENT
     };
 
     const newConversation: Conversation = {
-      id: `conv-${Date.now()}`,
+      id: generateConversationId(),
       title: t.header.title,
       messages: [welcomeMessage],
       createdAt: new Date(),

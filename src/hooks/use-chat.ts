@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
-import { chatAPI, APIError } from '@/lib/api-client';
+import { chatAPI } from '@/lib/api-client';
 import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
 import { useLanguage } from '@/contexts/language-context';
+import { MessageRole, MessageStatus } from '@/lib/enums';
+import { generateMessageId } from '@/lib/utils/ids';
+import { mapAPIErrorToMessage } from '@/lib/utils/error-handler';
 
 interface UseChatReturn {
   // State
@@ -45,11 +48,11 @@ export function useChat(
 
     // Create user message
     const userMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
+      id: generateMessageId(),
       content: message.trim(),
-      role: 'user',
+      role: MessageRole.USER,
       timestamp: new Date(),
-      status: 'sent'
+      status: MessageStatus.SENT
     };
 
     try {
@@ -79,11 +82,11 @@ export function useChat(
 
       // Create assistant message from response
       const assistantMessage: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
+        id: generateMessageId(),
         content: response.response,
-        role: 'assistant',
+        role: MessageRole.ASSISTANT,
         timestamp: new Date(),
-        status: 'sent'
+        status: MessageStatus.SENT
       };
 
       // Update conversation with assistant response
@@ -101,28 +104,7 @@ export function useChat(
       console.error('Chat error:', err);
 
       // Handle different error types with translations
-      let errorMessage: string = t.errors.genericError;
-
-      if (err instanceof APIError) {
-        switch (err.code) {
-          case 'NETWORK_ERROR':
-            errorMessage = t.errors.networkError;
-            break;
-          case 'TIMEOUT':
-            errorMessage = t.errors.timeout;
-            break;
-          case 'HTTP_ERROR':
-            if (err.status === 404) {
-              errorMessage = t.errors.serviceUnavailable;
-            } else if (err.status && err.status >= 500) {
-              errorMessage = t.errors.serverError;
-            }
-            break;
-          default:
-            errorMessage = err.message;
-        }
-      }
-
+      const errorMessage = mapAPIErrorToMessage(err, t.errors);
       setError(errorMessage);
 
       // Mark user message as failed
@@ -132,7 +114,7 @@ export function useChat(
               ...conv,
               messages: conv.messages.map(msg =>
                 msg.id === userMessage.id
-                  ? { ...msg, status: 'error' as const }
+                  ? { ...msg, status: MessageStatus.ERROR }
                   : msg
               )
             }

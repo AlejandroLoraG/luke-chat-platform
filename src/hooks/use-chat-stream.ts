@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
-import { chatAPI, APIError } from '@/lib/api-client';
+import { chatAPI } from '@/lib/api-client';
 import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
 import { useLanguage } from '@/contexts/language-context';
+import { MessageRole, MessageStatus, StreamingEventType } from '@/lib/enums';
+import { generateMessageId } from '@/lib/utils/ids';
+import { mapAPIErrorToMessage } from '@/lib/utils/error-handler';
 
 interface UseChatStreamReturn {
   // State
@@ -59,21 +62,21 @@ export function useChatStream(
 
     // Create user message
     const userMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
+      id: generateMessageId(),
       content: message.trim(),
-      role: 'user',
+      role: MessageRole.USER,
       timestamp: new Date(),
-      status: 'sent'
+      status: MessageStatus.SENT
     };
 
     // Create initial assistant message placeholder
-    const assistantMessageId = `msg-${Date.now() + 1}`;
+    const assistantMessageId = generateMessageId();
     const assistantMessage: ChatMessage = {
       id: assistantMessageId,
       content: '',
-      role: 'assistant',
+      role: MessageRole.ASSISTANT,
       timestamp: new Date(),
-      status: 'sending'
+      status: MessageStatus.SENDING
     };
 
     currentStreamingMessageRef.current = assistantMessageId;
@@ -112,11 +115,11 @@ export function useChatStream(
 
         // Handle different chunk types
         switch (chunk.type) {
-          case 'start':
+          case StreamingEventType.START:
             hasStarted = true;
             break;
 
-          case 'chunk':
+          case StreamingEventType.CHUNK:
             if (chunk.content) {
               accumulatedContent += chunk.content;
 
@@ -130,7 +133,7 @@ export function useChatStream(
                           ? {
                               ...msg,
                               content: accumulatedContent,
-                              status: 'sending' as const
+                              status: MessageStatus.SENDING
                             }
                           : msg
                       ),
@@ -141,7 +144,7 @@ export function useChatStream(
             }
             break;
 
-          case 'complete':
+          case StreamingEventType.COMPLETE:
             // Mark the message as complete
             setConversations(prev => prev.map(conv =>
               conv.id === targetConversationId
@@ -152,7 +155,7 @@ export function useChatStream(
                         ? {
                             ...msg,
                             content: accumulatedContent,
-                            status: 'sent' as const
+                            status: MessageStatus.SENT
                           }
                         : msg
                     ),
@@ -162,40 +165,22 @@ export function useChatStream(
             ));
             break;
 
-          case 'error':
-            throw new APIError(chunk.error || 'Streaming error occurred', 0, 'STREAM_ERROR');
+          case StreamingEventType.ERROR:
+            throw new Error(chunk.error || 'Streaming error occurred');
         }
       }
 
       // If we never got a start event, treat as error
       if (!hasStarted && !controller.signal.aborted) {
-        throw new APIError('Stream never started', 0, 'STREAM_START_ERROR');
+        throw new Error('Stream never started');
       }
 
     } catch (err) {
       console.error('Streaming error:', err);
 
-      // Handle different error types with translations
-      let errorMessage: string = t.errors.genericError;
-
-      if (err instanceof APIError) {
-        switch (err.code) {
-          case 'NETWORK_ERROR':
-            errorMessage = t.errors.networkError;
-            break;
-          case 'TIMEOUT':
-            errorMessage = t.errors.timeout;
-            break;
-          case 'STREAM_ERROR':
-            errorMessage = t.errors.genericError;
-            break;
-          default:
-            errorMessage = err.message;
-        }
-      }
-
       // Only set error if not aborted by user
       if (!controller.signal.aborted) {
+        const errorMessage = mapAPIErrorToMessage(err, t.errors);
         setStreamingError(errorMessage);
 
         // Mark assistant message as failed
@@ -205,7 +190,7 @@ export function useChatStream(
                 ...conv,
                 messages: conv.messages.map(msg =>
                   msg.id === assistantMessageId
-                    ? { ...msg, status: 'error' as const }
+                    ? { ...msg, status: MessageStatus.ERROR }
                     : msg
                 )
               }

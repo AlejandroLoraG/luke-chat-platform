@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
@@ -15,7 +15,7 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
-export function ChatInput({
+export const ChatInput = memo(function ChatInput({
   onSendMessage,
   onSendStreamingMessage,
   isLoading = false,
@@ -108,4 +108,4 @@ export function ChatInput({
       </div>
     </div>
   );
-}
+});
