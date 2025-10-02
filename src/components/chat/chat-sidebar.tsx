@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Plus, MessageCircle, Workflow } from 'lucide-react';
+import { Plus, MessageCircle, Users, ChevronDown } from 'lucide-react';
 import { Conversation } from '@/types/chat';
 import { useTranslation } from '@/hooks/use-translation';
+import { LukeLogo } from '@/components/ui/luke-logo';
+import { cn } from '@/lib/utils';
 
 interface ChatSidebarProps {
   conversations: Conversation[];
@@ -24,175 +23,108 @@ export function ChatSidebar({
   onNewChat
 }: ChatSidebarProps) {
   const t = useTranslation();
-  const [activeTab, setActiveTab] = useState<'chats' | 'workflows'>('chats');
+  const [builderOpen, setBuilderOpen] = useState(true);
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Fixed Header Section */}
-      <div className="flex-shrink-0 p-6 pb-4">
-        {/* App Title */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-foreground">{t.sidebar.appTitle}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t.sidebar.appSubtitle}</p>
-        </div>
-
-        {/* New Chat Button */}
-        <Button
-          onClick={onNewChat}
-          className="w-full justify-start h-11 mb-6"
-          variant="outline"
-        >
-          <Plus className="w-4 h-4 mr-3" />
-          {t.sidebar.newChat}
-        </Button>
-
-        {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-muted rounded-lg">
-          <Button
-            variant={activeTab === 'chats' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex-1 h-9"
-            onClick={() => setActiveTab('chats')}
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            {t.sidebar.tabs.chats}
-          </Button>
-          <Button
-            variant={activeTab === 'workflows' ? 'default' : 'ghost'}
-            size="sm"
-            className="flex-1 h-9"
-            onClick={() => setActiveTab('workflows')}
-          >
-            <Workflow className="w-4 h-4 mr-2" />
-            {t.sidebar.tabs.workflows}
-          </Button>
+    <div className="flex flex-col h-full bg-muted">
+      {/* Header with Logo */}
+      <div className="flex-shrink-0 p-4 pb-3 border-b border-border/50">
+        <div className="flex items-center gap-2.5">
+          <LukeLogo className="w-10 h-10 flex-shrink-0" />
+          <div>
+            <h1 className="text-base font-bold text-foreground">Luke</h1>
+          </div>
         </div>
       </div>
 
-      <Separator className="mx-6" />
-
-      {/* Scrollable Content Section */}
-      <div className="flex-1 overflow-hidden px-2">
-        <ScrollArea className="h-full w-full" type="always">
-          <div className="px-4 py-4 pr-2">
-            {activeTab === 'chats' ? (
-              <div className="space-y-3">
-                {conversations.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-12">
-                    <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-40" />
-                    <p className="text-sm font-medium mb-1">{t.sidebar.emptyState.title}</p>
-                    <p className="text-xs">{t.sidebar.emptyState.subtitle}</p>
-                  </div>
-                ) : (
-                  conversations.map((conversation) => (
-                    <Card
-                      key={conversation.id}
-                      className={`p-4 cursor-pointer transition-all duration-200 hover:bg-accent hover:shadow-sm ${
-                        currentConversationId === conversation.id
-                          ? 'bg-accent border-primary shadow-sm'
-                          : 'border-border hover:border-border/80'
-                      }`}
-                      onClick={() => onConversationSelect(conversation.id)}
-                    >
-                      <div className="space-y-2">
-                        <h3 className="font-medium text-sm leading-tight truncate">
-                          {conversation.title}
-                        </h3>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <MessageCircle className="w-3 h-3" />
-                            {conversation.messages.length} {conversation.messages.length === 1 ? t.sidebar.messageCount.singular : t.sidebar.messageCount.plural}
-                          </span>
-                          <span>
-                            {conversation.updatedAt.toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  ))
+      {/* Scrollable Content */}
+      <ScrollArea className="flex-1">
+        <div className="p-3">
+          {/* Builder Section */}
+          <div className="mb-4">
+            <button
+              onClick={() => setBuilderOpen(!builderOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-primary hover:bg-accent/50 rounded-lg transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Builder
+              </span>
+              <ChevronDown
+                className={cn(
+                  "w-4 h-4 transition-transform",
+                  builderOpen && "rotate-180"
                 )}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium text-foreground mb-1">{t.sidebar.workflowsSection.title}</h3>
-                  <p className="text-xs text-muted-foreground">{t.sidebar.workflowsSection.subtitle}</p>
-                </div>
+              />
+            </button>
 
-                {/* Sample workflows with better spacing */}
-                <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.documentApproval.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {t.sidebar.workflowTemplates.documentApproval.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.incidentManagement.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {t.sidebar.workflowTemplates.incidentManagement.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.taskManagement.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {t.sidebar.workflowTemplates.taskManagement.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.requestHandling.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {t.sidebar.workflowTemplates.requestHandling.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm leading-tight">{t.sidebar.workflowTemplates.documentReview.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                          {t.sidebar.workflowTemplates.documentReview.description}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">{t.sidebar.workflowsSection.templateBadge}</Badge>
-                    </div>
-                  </div>
-                </Card>
+            {builderOpen && (
+              <div className="mt-2 space-y-1">
+                {/* New Workflow Button */}
+                <Button
+                  onClick={onNewChat}
+                  variant="ghost"
+                  className="w-full justify-start h-9 px-3 text-sm font-normal hover:bg-accent"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t.sidebar.newChat}
+                </Button>
               </div>
             )}
           </div>
-        </ScrollArea>
+
+          {/* Drafts Section */}
+          {builderOpen && conversations.length > 0 && (
+            <div className="mb-4">
+              <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                DRAFTS
+              </div>
+              <div className="space-y-0.5">
+                {conversations.map((conversation) => (
+                  <button
+                    key={conversation.id}
+                    onClick={() => onConversationSelect(conversation.id)}
+                    className={cn(
+                      "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
+                      currentConversationId === conversation.id
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-foreground/80 hover:bg-accent/50 hover:text-foreground"
+                    )}
+                  >
+                    <div className="truncate">{conversation.title}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* People Section */}
+          <div>
+            <Button
+              variant="ghost"
+              className="w-full justify-start h-9 px-3 text-sm font-normal text-foreground/80 hover:bg-accent"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              People
+            </Button>
+          </div>
+        </div>
+      </ScrollArea>
+
+      {/* Bottom User Profile */}
+      <div className="flex-shrink-0 border-t border-border/50 p-3">
+        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent transition-colors">
+          <div className="w-8 h-8 rounded-full bg-gray-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
+            C
+          </div>
+          <div className="flex-1 text-left min-w-0">
+            <div className="text-sm font-medium text-foreground truncate">Cotalker</div>
+            <div className="text-xs text-muted-foreground truncate">John Doe</div>
+          </div>
+          <svg className="w-4 h-4 text-muted-foreground flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
       </div>
     </div>
   );

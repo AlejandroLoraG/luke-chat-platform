@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Square, Zap, MessageSquare } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface ChatInputProps {
@@ -20,12 +20,10 @@ export function ChatInput({
   onSendStreamingMessage,
   isLoading = false,
   isStreaming = false,
-  onStopStreaming,
   disabled = false
 }: ChatInputProps) {
   const t = useTranslation();
   const [message, setMessage] = useState('');
-  const [useStreaming, setUseStreaming] = useState(true); // Default to streaming
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,8 +39,8 @@ export function ChatInput({
       return;
     }
 
-    // Use streaming or standard based on toggle
-    if (useStreaming && onSendStreamingMessage) {
+    // Default to streaming
+    if (onSendStreamingMessage) {
       onSendStreamingMessage(message.trim());
     } else {
       onSendMessage(message.trim());
@@ -58,118 +56,54 @@ export function ChatInput({
     }
   };
 
-  const handleStop = () => {
-    if (onStopStreaming) {
-      onStopStreaming();
-    }
-  };
-
   return (
-    <div className="border-t border-border bg-background p-4">
-      <div className="max-w-4xl mx-auto space-y-3">
-        {/* Streaming Mode Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant={useStreaming ? "default" : "outline"}
-              size="sm"
-              onClick={() => setUseStreaming(true)}
-              disabled={isLoading || isStreaming}
-              className="flex items-center gap-1.5"
-            >
-              <Zap className="w-3 h-3" />
-              <span className="text-xs">{t.chatInput.modes.streaming}</span>
-            </Button>
-            <Button
-              type="button"
-              variant={!useStreaming ? "default" : "outline"}
-              size="sm"
-              onClick={() => setUseStreaming(false)}
-              disabled={isLoading || isStreaming}
-              className="flex items-center gap-1.5"
-            >
-              <MessageSquare className="w-3 h-3" />
-              <span className="text-xs">{t.chatInput.modes.standard}</span>
-            </Button>
+    <div className="flex-shrink-0 border-t border-border/50 bg-background">
+      <div className="px-6 py-4">
+        {/* User Profile + Input Form */}
+        <div className="flex items-center gap-4">
+          {/* User Avatar */}
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center text-sm font-semibold">
+              C
+            </div>
           </div>
 
-          {/* Mode Description */}
-          <div className="text-xs text-muted-foreground">
-            {useStreaming ? t.chatInput.modes.streamingDescription : t.chatInput.modes.standardDescription}
+          {/* User Info + More button */}
+          <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+            <div className="text-left">
+              <div className="text-sm font-medium text-foreground">Cotalker</div>
+              <div className="text-xs text-muted-foreground">John Doe</div>
+            </div>
+            <button className="p-1 hover:bg-muted rounded">
+              <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
           </div>
-        </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <div className="flex-1 relative">
+          {/* Input Form */}
+          <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-3">
             <Input
               ref={inputRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={
-                isStreaming ? t.chatInput.placeholderStreaming :
-                isLoading ? t.chatInput.placeholderLoading :
-                t.chatInput.placeholder
-              }
+              placeholder={t.chatInput.placeholder}
               disabled={isLoading || disabled || isStreaming}
-              className="pr-12"
+              className="flex-1 h-11 bg-background border-border"
             />
 
-            {/* Character count (optional) */}
-            {message.length > 0 && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                {message.length}
-              </div>
-            )}
-          </div>
-
-          {/* Send/Stop Button */}
-          {isStreaming ? (
-            <Button
-              type="button"
-              onClick={handleStop}
-              variant="destructive"
-              size="default"
-              className="px-4"
-            >
-              <Square className="w-4 h-4" />
-              <span className="sr-only">{t.chatInput.stopStreaming}</span>
-            </Button>
-          ) : (
+            {/* Send Button */}
             <Button
               type="submit"
               disabled={!message.trim() || isLoading || disabled}
               size="default"
-              className="px-4"
+              className="h-11 px-4 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {useStreaming ? <Zap className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+              <Send className="w-4 h-4" />
               <span className="sr-only">{t.chatInput.sendMessage}</span>
             </Button>
-          )}
-        </form>
-
-        {/* Status indicators */}
-        <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
-            {isLoading && !isStreaming && (
-              <span className="flex items-center gap-1">
-                <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
-                {t.chatInput.status.sending}
-              </span>
-            )}
-            {isStreaming && (
-              <span className="flex items-center gap-1">
-                <div className="w-1 h-1 bg-current rounded-full animate-bounce"></div>
-                {t.chatInput.status.responding}
-              </span>
-            )}
-          </div>
-
-          <div className="text-right">
-            <span>{t.chatInput.keyboardHint}</span>
-          </div>
+          </form>
         </div>
       </div>
     </div>

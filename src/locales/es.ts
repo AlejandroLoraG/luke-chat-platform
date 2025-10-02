@@ -106,4 +106,11 @@ export const es: TranslationKeys = {
     english: 'EN',
     spanish: 'ES',
   },
+
+  // Action Buttons
+  actions: {
+    share: 'Compartir',
+    publish: 'Publicar',
+    myWorkflows: 'Mis flujos de trabajo',
+  },
 } as const;

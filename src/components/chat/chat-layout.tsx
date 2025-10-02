@@ -1,24 +1,76 @@
 "use client";
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ChatLayoutProps {
   sidebar: ReactNode;
+  workflowPanel: ReactNode;
   children: ReactNode;
 }
 
-export function ChatLayout({ sidebar, children }: ChatLayoutProps) {
-  return (
-    <div className="h-screen bg-background">
-      {/* Fixed Sidebar */}
-      <div className="fixed left-0 top-0 w-72 h-full border-r border-border bg-card overflow-hidden z-10">
-        {sidebar}
-      </div>
+export function ChatLayout({ sidebar, workflowPanel, children }: ChatLayoutProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      {/* Main chat area with left margin for sidebar */}
-      <div className="ml-72 h-full flex flex-col">
+  return (
+    <div className="h-screen bg-background overflow-hidden flex">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Left Sidebar - Workflows */}
+      <aside
+        className={`
+          fixed lg:relative left-0 top-0 h-full w-72 z-50
+          border-r border-border bg-muted
+          transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0 flex-shrink-0
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Mobile close button */}
+        <div className="lg:hidden absolute top-4 right-4 z-10">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(false)}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close sidebar</span>
+          </Button>
+        </div>
+
+        {sidebar}
+      </aside>
+
+      {/* Center - Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden">
+        {/* Mobile menu button */}
+        <div className="lg:hidden fixed top-4 left-4 z-30">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}
+            className="h-10 w-10 p-0 bg-background shadow-md border-border"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open sidebar</span>
+          </Button>
+        </div>
+
         {children}
       </div>
+
+      {/* Right Panel - Workflow Visualization */}
+      <aside className="hidden xl:block w-96 border-l border-border bg-background flex-shrink-0">
+        {workflowPanel}
+      </aside>
     </div>
   );
 }
