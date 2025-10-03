@@ -93,9 +93,9 @@ export function ChatLayout({ sidebar, workflowPanel, children }: ChatLayoutProps
 
           {/* Right Preview Panel (only on XL screens) */}
           <Panel
-            defaultSize={25}
-            minSize={20}
-            maxSize={35}
+            defaultSize={35}
+            minSize={25}
+            maxSize={50}
             className="hidden xl:block bg-background border-l border-border"
           >
             {workflowPanel}

@@ -15,4 +15,5 @@ export const endpoints = {
   chat: '/api/v1/chat',
   chatStream: '/api/v1/chat/stream',
   health: '/api/v1/health',
+  getWorkflow: (specId: string) => `/workflows/${specId}`,
 } as const;

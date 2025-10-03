@@ -5,7 +5,6 @@ import {
   Panel as PanelPrimitive,
   PanelGroup as PanelGroupPrimitive,
   PanelResizeHandle as PanelResizeHandlePrimitive,
-  type PanelProps,
   type PanelGroupProps,
   type PanelResizeHandleProps,
 } from "react-resizable-panels"

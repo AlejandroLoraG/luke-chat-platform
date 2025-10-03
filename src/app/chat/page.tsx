@@ -23,6 +23,9 @@ function ChatPageContent() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(
     mockConversations[0]?.id || null
   );
+  // TODO: Extract workflow_id from backend responses and set it here
+  // Backend should return workflow_id in ChatResponse when a workflow is created
+  const [currentWorkflowId] = useState<string | null>(null);
 
   // Use both chat hooks for standard and streaming
   const { isLoading, error, sendMessage, clearError } = useChat(
@@ -90,6 +93,10 @@ function ChatPageContent() {
 
     // Use the hook's sendMessage function
     await sendMessage(message, currentConversationId);
+
+    // TODO: Backend integration needed
+    // When backend returns workflow_id in response, extract it and call:
+    // setCurrentWorkflowId(response.workflow_id)
   }, [currentConversationId, sendMessage, error, clearError, streamingError, clearStreamingError]);
 
   // Handle sending a streaming message
@@ -118,7 +125,7 @@ function ChatPageContent() {
           onNewChat={handleNewChat}
         />
       }
-      workflowPanel={<WorkflowPanel />}
+      workflowPanel={<WorkflowPanel workflowId={currentWorkflowId} />}
     >
       {/* Chat Header - Breadcrumbs + Action Buttons */}
       <div className="flex-shrink-0 border-b border-border/50 bg-background">
