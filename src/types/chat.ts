@@ -22,6 +22,7 @@ export interface Conversation {
 // Backend API types based on backend documentation
 export interface ChatRequest {
   message: string;
+  session_id: string;
   workflow_spec?: WorkflowSpec;
   workflow_id?: string;
   conversation_id?: string;
@@ -31,6 +32,9 @@ export interface ChatRequest {
 export interface ChatResponse {
   response: string;
   conversation_id: string;
+  workflow_bound_id?: string | null;
+  is_chat_locked?: boolean;
+  session_id?: string;
   prompt_count: number;
   mcp_tools_used: string[];
   workflow_source?: string;
@@ -40,6 +44,9 @@ export interface StreamingChatChunk {
   type: StreamingEventType;
   content?: string;
   conversation_id?: string;
+  workflow_bound_id?: string | null;
+  is_chat_locked?: boolean;
+  session_id?: string;
   prompt_count?: number;
   mcp_tools_used?: string[];
   workflow_source?: string;

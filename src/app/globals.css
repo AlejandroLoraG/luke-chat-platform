@@ -217,3 +217,37 @@
 [data-panel-resize-handle-enabled][data-panel-group-direction="vertical"] {
   cursor: row-resize;
 }
+
+/* React Flow Customization */
+.react-flow__node {
+  @apply shadow-sm;
+}
+
+.react-flow__edge-path {
+  @apply stroke-2;
+}
+
+.react-flow__handle {
+  @apply transition-transform hover:scale-125;
+}
+
+.react-flow__controls {
+  @apply shadow-md border border-border rounded-lg;
+}
+
+.react-flow__controls-button {
+  @apply bg-background border-none hover:bg-accent transition-colors;
+  @apply text-foreground;
+}
+
+.react-flow__controls-button:hover {
+  @apply bg-accent;
+}
+
+.react-flow__minimap {
+  @apply shadow-md border border-border rounded-lg;
+}
+
+.react-flow__background {
+  @apply bg-muted/30;
+}

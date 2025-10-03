@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { chatAPI } from '@/lib/api-client';
-import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
+import type { ChatMessage, Conversation, ChatRequest, StreamingChatChunk } from '@/types/chat';
 import { useLanguage } from '@/contexts/language-context';
 import { MessageRole, MessageStatus, StreamingEventType } from '@/lib/enums';
 import { generateMessageId } from '@/lib/utils/ids';
@@ -12,7 +12,7 @@ interface UseChatStreamReturn {
   streamingError: string | null;
 
   // Actions
-  sendStreamingMessage: (message: string, conversationId?: string) => Promise<void>;
+  sendStreamingMessage: (message: string, conversationId?: string) => Promise<StreamingChatChunk | null>;
   stopStreaming: () => void;
   clearStreamingError: () => void;
 }
@@ -20,7 +20,8 @@ interface UseChatStreamReturn {
 export function useChatStream(
   conversations: Conversation[],
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>,
-  currentConversationId: string | null
+  currentConversationId: string | null,
+  sessionId: string | null
 ): UseChatStreamReturn {
   const { language, t } = useLanguage();
   const [isStreaming, setIsStreaming] = useState(false);
@@ -46,11 +47,11 @@ export function useChatStream(
   const sendStreamingMessage = useCallback(async (
     message: string,
     conversationId?: string
-  ) => {
-    if (!message.trim()) return;
+  ): Promise<StreamingChatChunk | null> => {
+    if (!message.trim()) return null;
 
     const targetConversationId = conversationId || currentConversationId;
-    if (!targetConversationId) return;
+    if (!targetConversationId) return null;
 
     // Clear any previous errors
     setStreamingError(null);
@@ -81,6 +82,9 @@ export function useChatStream(
 
     currentStreamingMessageRef.current = assistantMessageId;
 
+    // Track final chunk to return
+    let finalChunk: StreamingChatChunk | null = null;
+
     try {
       // Optimistically update UI with user message and empty assistant message
       setConversations(prev => prev.map(conv =>
@@ -97,8 +101,13 @@ export function useChatStream(
       ));
 
       // Prepare API request
+      if (!sessionId) {
+        throw new Error('Session ID is required');
+      }
+
       const chatRequest: ChatRequest = {
         message: message.trim(),
+        session_id: sessionId,
         conversation_id: targetConversationId,
         language: language,
       };
@@ -145,6 +154,8 @@ export function useChatStream(
             break;
 
           case StreamingEventType.COMPLETE:
+            finalChunk = chunk; // Capture final chunk with workflow_bound_id
+
             // Mark the message as complete
             setConversations(prev => prev.map(conv =>
               conv.id === targetConversationId
@@ -175,13 +186,23 @@ export function useChatStream(
         throw new Error('Stream never started');
       }
 
+      return finalChunk;
+
     } catch (err) {
       console.error('Streaming error:', err);
 
       // Only set error if not aborted by user
       if (!controller.signal.aborted) {
-        const errorMessage = mapAPIErrorToMessage(err, t.errors);
-        setStreamingError(errorMessage);
+        // Check if error is session-related
+        const errorText = err instanceof Error ? err.message : String(err);
+        const isSessionError = errorText.includes('Session') && errorText.includes('not found');
+
+        if (isSessionError) {
+          setStreamingError('Session expired. Please refresh the page to create a new session.');
+        } else {
+          const errorMessage = mapAPIErrorToMessage(err, t.errors);
+          setStreamingError(errorMessage);
+        }
 
         // Mark assistant message as failed
         setConversations(prev => prev.map(conv =>
@@ -197,6 +218,8 @@ export function useChatStream(
             : conv
         ));
       }
+
+      return null;
     } finally {
       // Clean up
       if (streamingControllerRef.current === controller) {
@@ -205,7 +228,7 @@ export function useChatStream(
       currentStreamingMessageRef.current = null;
       setIsStreaming(false);
     }
-  }, [currentConversationId, setConversations, language, t]);
+  }, [currentConversationId, setConversations, language, t, sessionId]);
 
   return {
     isStreaming,

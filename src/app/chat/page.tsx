@@ -16,19 +16,27 @@ import { LanguageProvider } from '@/contexts/language-context';
 import { useTranslation } from '@/hooks/use-translation';
 import { MessageRole, MessageStatus } from '@/lib/enums';
 import { generateConversationId, generateMessageId } from '@/lib/utils/ids';
+import { useSession } from '@/hooks/use-session';
+import { ChatBindingIndicator } from '@/components/chat/chat-binding-indicator';
 
 function ChatPageContent() {
   const t = useTranslation();
+  const { sessionId, isInitializing, error: sessionError } = useSession();
+
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(
     mockConversations[0]?.id || null
   );
+  const [currentWorkflowId, setCurrentWorkflowId] = useState<string | null>(null);
+  const [isChatLocked, setIsChatLocked] = useState<boolean>(false);
+  const [dismissedBindingIndicators, setDismissedBindingIndicators] = useState<Set<string>>(new Set());
 
   // Use both chat hooks for standard and streaming
   const { isLoading, error, sendMessage, clearError } = useChat(
     conversations,
     setConversations,
-    currentConversationId
+    currentConversationId,
+    sessionId
   );
 
   const {
@@ -40,7 +48,8 @@ function ChatPageContent() {
   } = useChatStream(
     conversations,
     setConversations,
-    currentConversationId
+    currentConversationId,
+    sessionId
   );
 
   // Get current conversation
@@ -76,6 +85,13 @@ function ChatPageContent() {
     setCurrentConversationId(conversationId);
   }, []);
 
+  // Handle dismissing the binding indicator
+  const handleDismissBindingIndicator = useCallback(() => {
+    if (currentConversationId) {
+      setDismissedBindingIndicators(prev => new Set([...prev, currentConversationId]));
+    }
+  }, [currentConversationId]);
+
   // Handle sending a standard message
   const handleSendMessage = useCallback(async (message: string) => {
     if (!currentConversationId) return;
@@ -89,7 +105,17 @@ function ChatPageContent() {
     }
 
     // Use the hook's sendMessage function
-    await sendMessage(message, currentConversationId);
+    const response = await sendMessage(message, currentConversationId);
+
+    // Extract workflow_id and chat locked status from response if present
+    console.log('Chat response:', response);
+    if (response?.workflow_bound_id) {
+      console.log('Setting workflow ID:', response.workflow_bound_id);
+      setCurrentWorkflowId(response.workflow_bound_id);
+    }
+    if (response?.is_chat_locked !== undefined) {
+      setIsChatLocked(response.is_chat_locked);
+    }
   }, [currentConversationId, sendMessage, error, clearError, streamingError, clearStreamingError]);
 
   // Handle sending a streaming message
@@ -105,8 +131,44 @@ function ChatPageContent() {
     }
 
     // Use the streaming hook's sendStreamingMessage function
-    await sendStreamingMessage(message, currentConversationId);
+    const finalChunk = await sendStreamingMessage(message, currentConversationId);
+
+    // Extract workflow_id and chat locked status from final chunk if present
+    console.log('Streaming final chunk:', finalChunk);
+
+    // TEMPORARY: Check if workflow was created via MCP tools
+    // Backend will eventually return workflow_bound_id directly
+    const workflowCreated = finalChunk?.mcp_tools_used?.includes('create_workflow_from_description');
+
+    if (finalChunk?.workflow_bound_id) {
+      console.log('Setting workflow ID from stream:', finalChunk.workflow_bound_id);
+      setCurrentWorkflowId(finalChunk.workflow_bound_id);
+    } else if (workflowCreated) {
+      // TEMPORARY WORKAROUND: Extract from conversation_id or use a placeholder
+      console.warn('Backend did not return workflow_bound_id. Using conversation_id as fallback.');
+      console.log('Available workflows in backend:', ['wf_incidentes', 'wf_approval', 'wf_tasks', 'wf_hiring_workflow']);
+      // For now, you'll need to manually check which workflow was created
+      // OR we can fetch the latest workflow from a list endpoint
+    }
+
+    if (finalChunk?.is_chat_locked !== undefined) {
+      setIsChatLocked(finalChunk.is_chat_locked);
+    }
   }, [currentConversationId, sendStreamingMessage, error, clearError, streamingError, clearStreamingError]);
+
+  // Show loading screen while session initializes
+  if (isInitializing || !sessionId) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+          <p className="text-sm text-muted-foreground">
+            {sessionError ? 'Session error. Retrying...' : 'Initializing session...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ChatLayout
@@ -118,8 +180,16 @@ function ChatPageContent() {
           onNewChat={handleNewChat}
         />
       }
-      workflowPanel={<WorkflowPanel />}
+      workflowPanel={<WorkflowPanel workflowId={currentWorkflowId} />}
     >
+      {/* Chat Binding Indicator */}
+      <ChatBindingIndicator
+        isLocked={isChatLocked && !dismissedBindingIndicators.has(currentConversationId || '')}
+        workflowName={currentConversation?.title}
+        onNewChat={handleNewChat}
+        onDismiss={handleDismissBindingIndicator}
+      />
+
       {/* Chat Header - Breadcrumbs + Action Buttons */}
       <div className="flex-shrink-0 border-b border-border/50 bg-background">
         <div className="px-6 py-3.5 flex items-center justify-between gap-4">

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { chatAPI } from '@/lib/api-client';
-import type { ChatMessage, Conversation, ChatRequest } from '@/types/chat';
+import type { ChatMessage, Conversation, ChatRequest, ChatResponse } from '@/types/chat';
 import { useLanguage } from '@/contexts/language-context';
 import { MessageRole, MessageStatus } from '@/lib/enums';
 import { generateMessageId } from '@/lib/utils/ids';
@@ -12,14 +12,15 @@ interface UseChatReturn {
   error: string | null;
 
   // Actions
-  sendMessage: (message: string, conversationId?: string) => Promise<void>;
+  sendMessage: (message: string, conversationId?: string) => Promise<ChatResponse | null>;
   clearError: () => void;
 }
 
 export function useChat(
   conversations: Conversation[],
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>,
-  currentConversationId: string | null
+  currentConversationId: string | null,
+  sessionId: string | null
 ): UseChatReturn {
   const { language, t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,11 +37,11 @@ export function useChat(
   const sendMessage = useCallback(async (
     message: string,
     conversationId?: string
-  ) => {
-    if (!message.trim()) return;
+  ): Promise<ChatResponse | null> => {
+    if (!message.trim()) return null;
 
     const targetConversationId = conversationId || currentConversationId;
-    if (!targetConversationId) return;
+    if (!targetConversationId) return null;
 
     // Clear any previous errors
     setError(null);
@@ -71,8 +72,13 @@ export function useChat(
       ));
 
       // Prepare API request
+      if (!sessionId) {
+        throw new Error('Session ID is required');
+      }
+
       const chatRequest: ChatRequest = {
         message: message.trim(),
+        session_id: sessionId,
         conversation_id: targetConversationId,
         language: language,
       };
@@ -100,12 +106,23 @@ export function useChat(
           : conv
       ));
 
+      return response;
+
     } catch (err) {
       console.error('Chat error:', err);
 
-      // Handle different error types with translations
-      const errorMessage = mapAPIErrorToMessage(err, t.errors);
-      setError(errorMessage);
+      // Check if error is session-related
+      const errorText = err instanceof Error ? err.message : String(err);
+      const isSessionError = errorText.includes('Session') && errorText.includes('not found');
+
+      if (isSessionError) {
+        // Session is invalid, suggest page reload
+        setError('Session expired. Please refresh the page to create a new session.');
+      } else {
+        // Handle different error types with translations
+        const errorMessage = mapAPIErrorToMessage(err, t.errors);
+        setError(errorMessage);
+      }
 
       // Mark user message as failed
       setConversations(prev => prev.map(conv =>
@@ -120,10 +137,12 @@ export function useChat(
             }
           : conv
       ));
+
+      return null;
     } finally {
       setIsLoading(false);
     }
-  }, [currentConversationId, setConversations, language, t]);
+  }, [currentConversationId, setConversations, language, t, sessionId]);
 
   return {
     isLoading,
